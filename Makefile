@@ -4,8 +4,14 @@ LIBS = `pkg-config --libs gsl`
 .PHONY: all
 
 
-all: g
+all: g example.png
 
 
 g: gillespie.c model.c
 	cc $(CFLAGS) -o $@ $^ $(LIBS)
+
+trajectory.txt: g
+	./g 0 1 > $@
+
+example.png: example.gnuplot trajectory.txt
+	gnuplot $<

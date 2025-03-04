@@ -1,11 +1,16 @@
 #include "model.h"
 
+/* Propensities a are a bit like fluxes.
+ * Propensity parameters c are
+ * a bit like rate corefficients k
+ */
+
 enum state {_A, _B, _C, numStates};
 enum reaction {_R1, _R2, numReactions};
 
-// R1:  A + B -> C
-// R2: C -> A + B
-
+/* R1:  A + B -> C
+ * R2: C -> A + B
+ */
 /* makes changes to the model according to chosen reaction */
 int model_effects(double t, int *x, int j){
 	if (!x) return numStates;
@@ -24,10 +29,11 @@ int model_effects(double t, int *x, int j){
 	return 0;
 }
 
-// t: time
-// x: counts of molecules
-// c: stochastic reaction parameters
-// a: propensity of each reaction (output)
+/* t: time
+ * x: counts of molecules
+ * c: stochastic reaction parameters
+ * a: propensity of each reaction (output)
+ */
 int model_propensities(double t, int *x, double *c, double *a){
 	if (!x || !a) return numStates;
 	a[_R1] = c[_R1]*x[_A]*x[_B];
@@ -43,10 +49,11 @@ int model_reaction_coefficients(double *c){
 	return 0;
 }
 
-// t: time
-// x: counts of molecules
-// c: stochastic reaction parameters
-// a: propensity of each reaction (output)
+/* t: time
+ * x: counts of molecules
+ * c: stochastic reaction parameters
+ * a: propensity of each reaction (output)
+ */
 int model_initial_counts(int *x){
 	if (!x) return numStates;
 	x[_A] = 100;

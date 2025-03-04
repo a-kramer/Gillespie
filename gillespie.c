@@ -50,13 +50,13 @@ int main(int argc, char *argv[]){
 	int i,j;
 	size_t n = model_initial_counts(NULL);
 	size_t m = model_reaction_coefficients(NULL);
+	size_t na = model_propensities(0,NULL,NULL,NULL);
 	gsl_vector_int *x = gsl_vector_int_alloc(n);
 	gsl_vector *c = gsl_vector_alloc(m);
-	gsl_vector *a = gsl_vector_alloc(m);
+	gsl_vector *a = gsl_vector_alloc(na);
 	double sum_a;
 	double t0 = 0;
 	double tf = 10;
-	char *name[] = {"A","B","C",NULL};
 	size_t l=64;
 	ssize_t r;
 	char *line = malloc(l);
@@ -70,6 +70,7 @@ int main(int argc, char *argv[]){
 	gsl_rng_set(RNG,1337);
 	model_initial_counts(x->data);
 	model_reaction_coefficients(c->data);
+	//printf("# [%s] n=%li, m=%li, na=%li\n",__func__,n,m,na);
 	/*for (j=0;j<c->size;j++){
 		if ((r=getline(&line,&l,stdin))>=0){
 			gsl_vector_set(c,j,strtod(line,NULL));
@@ -80,7 +81,7 @@ int main(int argc, char *argv[]){
 	putchar('#');
 	printf("%9s ","t");
 	for (i=0;i<n;i++){
-		printf("%10s ",name[i]);
+		printf("%10c ",'A'+i);
 	}
 	printf("\n");
 	print_counts(t,x); /* print initial values */

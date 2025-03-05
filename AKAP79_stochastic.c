@@ -1,8 +1,9 @@
-#include "model.h"
-
+#include <stdlib.h>
+#include <math.h>
 enum state {_Rii, _cAMP, _RiiP, _Rii_C, _RiiP_cAMP, _RiiP_C, _RiiP_C_cAMP, _C, _Rii_cAMP, _Rii_C_cAMP, _CaN, _RiiP_CaN, _RiiP_cAMP_CaN, _AKAR4, _AKAR4_C, _AKAR4p, numStateVariables};
 enum parameter {_kf_Rii_C__RiiP_C, _kf_RiiP_CxcAMP__RiiP_C_cAMP, _kf_RiiP_cAMPxC__RiiP_C_cAMP, _kb_RiiP_cAMPxC__RiiP_C_cAMP, _kb_RiiPXcAMP__RiiP_cAMP, _kf_RiiPXcAMP__RiiP_cAMP, _kf_RiiPxC__RiiP_C, _kb_RiiPxC__RiiP_C, _kf_cAMPxRii__Rii_cAMP, _kb_cAMPxRii__Rii_cAMP, _kf_Rii_CxcAMP__Rii_C_cAMP, _kb_Rii_CxcAMP__Rii_C_cAMP, _kf_RiixC__Rii_C, _kf_Rii_cAMPxC__Rii_C_cAMP, _kb_Rii_cAMPxC__Rii_C_cAMP, _kf_Rii_C_cAMP__RiiP_C_cAMP, _kb_RiixC__Rii_C, _AKAPoff_1, _AKAPoff_3, _AKAPon_1, _AKAPon_3, _kf_C_AKAR4, _kb_C_AKAR4, _kcat_AKARp, _kmOFF, _kmON, _KD_T, _b_AKAP, numParameters};
 enum reaction {_reaction_51_fwd, _reaction_14_fwd, _reaction_12_fwd, _reaction_43_fwd, _reaction_23_fwd, _reaction_78_fwd, _reaction_56_fwd, _reaction_76_fwd, _reaction_62_fwd, _reaction_58_fwd, _reaction_44_fwd, _reaction_33_fwd, _reaction_48_fwd, _reaction_37_fwd, _reaction_1_fwd, _reaction_2_fwd, _reaction_51_bwd, _reaction_14_bwd, _reaction_12_bwd, _reaction_43_bwd, _reaction_23_bwd, _reaction_78_bwd, _reaction_56_bwd, _reaction_76_bwd, _reaction_62_bwd, _reaction_58_bwd, _reaction_44_bwd, _reaction_33_bwd, _reaction_48_bwd, _reaction_37_bwd, _reaction_1_bwd, _reaction_2_bwd, numReactions};
+enum outputFunctions {_AKAR4pOUT, numFunctions};
 int model_effects(double t, int *x, int j){
 	if (!x) return numStateVariables;
 	switch(j){
@@ -306,5 +307,85 @@ int model_initial_counts(int *x){
 	x[_AKAR4] = 120; // 120.443
 	x[_AKAR4_C] = 0; // 0
 	x[_AKAR4p] = 0; // 0
+	return 0;
+}
+int model_func(double t, int *x, double *c, double *func){
+	if(!func) return numFunctions;
+	/* forward parameters */
+	double kf_Rii_C__RiiP_C = 1 * c[_kf_Rii_C__RiiP_C]; // per second
+	double kf_RiiP_CxcAMP__RiiP_C_cAMP = 0.00166054 * c[_kf_RiiP_CxcAMP__RiiP_C_cAMP]; // per second
+	double kf_RiiP_cAMPxC__RiiP_C_cAMP = 0.00166054 * c[_kf_RiiP_cAMPxC__RiiP_C_cAMP]; // per second
+	double kf_RiiPXcAMP__RiiP_cAMP = 0.00166054 * c[_kf_RiiPXcAMP__RiiP_cAMP]; // per second
+	double kf_RiiPxC__RiiP_C = 0.00166054 * c[_kf_RiiPxC__RiiP_C]; // per second
+	double kf_cAMPxRii__Rii_cAMP = 0.00166054 * c[_kf_cAMPxRii__Rii_cAMP]; // per second
+	double kf_Rii_CxcAMP__Rii_C_cAMP = 0.00166054 * c[_kf_Rii_CxcAMP__Rii_C_cAMP]; // per second
+	double kf_RiixC__Rii_C = 0.00166054 * c[_kf_RiixC__Rii_C]; // per second
+	double kf_Rii_cAMPxC__Rii_C_cAMP = 0.00166054 * c[_kf_Rii_cAMPxC__Rii_C_cAMP]; // per second
+	double kf_Rii_C_cAMP__RiiP_C_cAMP = 1 * c[_kf_Rii_C_cAMP__RiiP_C_cAMP]; // per second
+	double kf_C_AKAR4 = 0.00166054 * c[_kf_C_AKAR4]; // per second
+	double kcat_AKARp = 1 * c[_kcat_AKARp]; // per second
+	/* backward parameters */
+	double kb_RiiP_cAMPxC__RiiP_C_cAMP = 1 * c[_kb_RiiP_cAMPxC__RiiP_C_cAMP]; // per second
+	double kb_RiiPXcAMP__RiiP_cAMP = 1 * c[_kb_RiiPXcAMP__RiiP_cAMP]; // per second
+	double kb_RiiPxC__RiiP_C = 1 * c[_kb_RiiPxC__RiiP_C]; // per second
+	double kb_cAMPxRii__Rii_cAMP = 1 * c[_kb_cAMPxRii__Rii_cAMP]; // per second
+	double kb_Rii_CxcAMP__Rii_C_cAMP = 1 * c[_kb_Rii_CxcAMP__Rii_C_cAMP]; // per second
+	double kb_Rii_cAMPxC__Rii_C_cAMP = 1 * c[_kb_Rii_cAMPxC__Rii_C_cAMP]; // per second
+	double kb_RiixC__Rii_C = 1 * c[_kb_RiixC__Rii_C]; // per second
+	double kb_C_AKAR4 = 1 * c[_kb_C_AKAR4]; // per second
+	/* parameters that do not appear in kinetric laws */
+	double AKAPoff_1 = 1 * c[_AKAPoff_1]; // per second
+	double AKAPoff_3 = 1 * c[_AKAPoff_3]; // per second
+	double AKAPon_1 = 1 * c[_AKAPon_1]; // per second
+	double AKAPon_3 = 1 * c[_AKAPon_3]; // per second
+	double kmOFF = 602.214 * c[_kmOFF]; // per second
+	double kmON = 602.214 * c[_kmON]; // per second
+	double KD_T = 602.214 * c[_KD_T]; // per second
+	double b_AKAP = 1 * c[_b_AKAP]; // per second
+	/*state variables */
+	double Rii = x[_Rii];
+	double cAMP = x[_cAMP];
+	double RiiP = x[_RiiP];
+	double Rii_C = x[_Rii_C];
+	double RiiP_cAMP = x[_RiiP_cAMP];
+	double RiiP_C = x[_RiiP_C];
+	double RiiP_C_cAMP = x[_RiiP_C_cAMP];
+	double C = x[_C];
+	double Rii_cAMP = x[_Rii_cAMP];
+	double Rii_C_cAMP = x[_Rii_C_cAMP];
+	double CaN = x[_CaN];
+	double RiiP_CaN = x[_RiiP_CaN];
+	double RiiP_cAMP_CaN = x[_RiiP_cAMP_CaN];
+	double AKAR4 = x[_AKAR4];
+	double AKAR4_C = x[_AKAR4_C];
+	double AKAR4p = x[_AKAR4p];
+	double kf_RiiP_cAMP_CaN__CaNXRii_cAMP = b_AKAP * AKAPon_1 + (1 - b_AKAP) * AKAPoff_1;
+	double kb_RiiPxCaN__RiiP_CaN = b_AKAP*AKAPon_3  +  (1 - b_AKAP)* AKAPoff_3;
+	double kf_RiiP_CaN__RiixCaN = b_AKAP * AKAPon_1 + (1 - b_AKAP) * AKAPoff_1;
+	double kb_CaNxRiiP_cAMP__RiiP_cAMP_CaN = b_AKAP*AKAPon_3  +  (1 - b_AKAP)* AKAPoff_3;
+	double kf_RiiPxCaN__RiiP_CaN = b_AKAP * ((kb_RiiPxCaN__RiiP_CaN + kf_RiiP_cAMP_CaN__CaNXRii_cAMP)/kmON ) + (1 - b_AKAP) * (kb_RiiPxCaN__RiiP_CaN + kf_RiiP_cAMP_CaN__CaNXRii_cAMP) / kmOFF;
+	double kf_CaNxRiiP_cAMP__RiiP_cAMP_CaN = b_AKAP * ((kb_CaNxRiiP_cAMP__RiiP_cAMP_CaN + kf_RiiP_CaN__RiixCaN)/kmON) + (1 - b_AKAP) * (kb_CaNxRiiP_cAMP__RiiP_cAMP_CaN + kf_RiiP_CaN__RiixCaN)/kmOFF;
+	double kb_RiiP_CxcAMP__RiiP_C_cAMP = kf_RiiP_CxcAMP__RiiP_C_cAMP * KD_T;
+	func[_AKAR4pOUT] = (AKAR4p*5)*71.67+100;
+	return 0;
+}
+int model_particle_count(double t, double *molarity, int *x){
+	if(!molarity || !x) return numStateVariables;
+	x[_Rii] = lround(602.214 * molarity[_Rii]);
+	x[_cAMP] = lround(602.214 * molarity[_cAMP]);
+	x[_RiiP] = lround(602.214 * molarity[_RiiP]);
+	x[_Rii_C] = lround(602.214 * molarity[_Rii_C]);
+	x[_RiiP_cAMP] = lround(602.214 * molarity[_RiiP_cAMP]);
+	x[_RiiP_C] = lround(602.214 * molarity[_RiiP_C]);
+	x[_RiiP_C_cAMP] = lround(602.214 * molarity[_RiiP_C_cAMP]);
+	x[_C] = lround(602.214 * molarity[_C]);
+	x[_Rii_cAMP] = lround(602.214 * molarity[_Rii_cAMP]);
+	x[_Rii_C_cAMP] = lround(602.214 * molarity[_Rii_C_cAMP]);
+	x[_CaN] = lround(602.214 * molarity[_CaN]);
+	x[_RiiP_CaN] = lround(602.214 * molarity[_RiiP_CaN]);
+	x[_RiiP_cAMP_CaN] = lround(602.214 * molarity[_RiiP_cAMP_CaN]);
+	x[_AKAR4] = lround(602.214 * molarity[_AKAR4]);
+	x[_AKAR4_C] = lround(602.214 * molarity[_AKAR4_C]);
+	x[_AKAR4p] = lround(602.214 * molarity[_AKAR4p]);
 	return 0;
 }
